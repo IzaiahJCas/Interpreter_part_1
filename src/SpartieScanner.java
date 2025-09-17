@@ -102,9 +102,21 @@ public class SpartieScanner {
         }
 
         // Comment special case
-        if (nextCharacter == '/' && current + 1 < source.length() && examine(nextCharacter)) {
-            current++;
-            return new Token(TokenType.IGNORE, "/", line);
+        if (nextCharacter == '/' && current + 1 < source.length() &&
+                examine('/')) {
+            // current++;
+            return null;
+        }
+
+        // Equivalent special case
+        if (nextCharacter == '=' && current + 1 < source.length() && examine('=')) {
+            return null;
+        }
+
+        // Not Equivalent Special Case
+        if (nextCharacter == '!' && current + 1 < source.length() && examine('=')) {
+            if (nextCharacter++ == '=')
+                return null;
         }
 
         if (singleCharTokens.containsKey(nextCharacter)) {
@@ -137,6 +149,25 @@ public class SpartieScanner {
         // long as one is available)
         // For example: < or <=
         char nextCharacter = source.charAt(current);
+
+        if (nextCharacter == '=' && examine(nextCharacter) && current + 1 < source.length()) {
+            current = +2;
+            return new Token(TokenType.EQUIVALENT, "==", line);
+        }
+
+        if (nextCharacter == '!' && current + 1 < source.length() && examine('=')) {
+            current += 2;
+            return new Token(TokenType.NOT_EQUAL, "!=", line);
+        }
+
+        switch (nextCharacter) {
+            case '<':
+                current++;
+                return new Token(TokenType.LESS_THAN, "<", line);
+            case '>':
+                current++;
+                return new Token(TokenType.GREATER_THAN, ">", line);
+        }
 
         return null;
     }
