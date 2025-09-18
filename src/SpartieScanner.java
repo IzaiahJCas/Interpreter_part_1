@@ -82,6 +82,18 @@ public class SpartieScanner {
         singleCharTokens.put('/', TokenType.DIVIDE);
         singleCharTokens.put('*', TokenType.MULTIPLY);
         singleCharTokens.put('!', TokenType.NOT);
+        singleCharTokens.put('|', TokenType.OR);
+        singleCharTokens.put('&', TokenType.AND);
+    }
+
+    // Helper to deal with end of line updating
+    private void eol() {
+        if (current < source.length()) {
+            if (source.charAt(current) == '\n') {
+                line++;
+            }
+            current++;
+        }
     }
 
     // TODO: Complete implementation
@@ -97,7 +109,12 @@ public class SpartieScanner {
 
         // For whitespace
         if (Character.isWhitespace(nextCharacter)) {
-            current++;
+            if (current < source.length()) {
+                if (source.charAt(current) == '\n') {
+                    line++;
+                }
+                current++;
+            }
             return new Token(TokenType.IGNORE, " ", line);
         }
 
@@ -140,7 +157,6 @@ public class SpartieScanner {
         // return new Token(TokenType.COMMA, ",", line);
         // }
         return null;
-
     }
 
     // TODO: Complete implementation
@@ -187,8 +203,9 @@ public class SpartieScanner {
         char nextCharacter = source.charAt(current);
         if (nextCharacter == '/' && current + 1 < source.length() &&
                 examine('/')) {
-            while (!isAtEnd()) {
-                current += 2;
+            current += 2;
+            while (current < source.length() && source.charAt(current) != '\n') {
+                current++;
             }
             return new Token(TokenType.IGNORE, " ", line);
         }
@@ -203,14 +220,11 @@ public class SpartieScanner {
         char nextCharacter = source.charAt(current);
         StringBuilder builder = new StringBuilder();
         if (nextCharacter == '"') {
-            builder.append(source.charAt(current));
             current++;
-
             while (source.charAt(current) != '"') {
                 builder.append(source.charAt(current));
                 current++;
             }
-            builder.append(source.charAt(current));
             current++;
             return new Token(TokenType.STRING, builder.toString(), line);
         }
@@ -222,6 +236,37 @@ public class SpartieScanner {
     private Token getNumericToken() {
         // Hint: Follow similar idea of String, but in this case if it is a digit
         // You should only allow one period in your scanner
+        char nextCharacter = source.charAt(current);
+        StringBuilder builder = new StringBuilder();
+        boolean dot = false;
+        // if (isDigit(nextCharacter) && isAtEnd()) {
+        // builder.append(source.charAt(current));
+        // return new Token(TokenType.NUMBER, builder.toString(), line);
+        // }
+
+        if (isDigit(nextCharacter)) {
+            builder.append(source.charAt(current));
+            current++;
+            while (current < source.length()) {
+                if (isDigit(source.charAt(current))) {
+                    builder.append(source.charAt(current));
+                    current++;
+                } else if (source.charAt(current) == '.' && !dot) {
+                    dot = true;
+                    builder.append(source.charAt(current));
+                    current++;
+                    if (current >= source.length() || !Character.isDigit(source.charAt(current))) {
+                        error(line, "Invalid number: missing digits after decimal point");
+                        return null;
+                    }
+                } else {
+                    break;
+                }
+            }
+            // builder.append(source.charAt(current));
+            // current++;
+            return new Token(TokenType.NUMBER, builder.toString(), line);
+        }
         return null;
     }
 
@@ -229,6 +274,23 @@ public class SpartieScanner {
     private Token getIdentifierOrReservedWord() {
         // Hint: Assume first it is an identifier and once you capture it, then check if
         // it is a reserved word.
+        char nextCharacter = source.charAt(current);
+        StringBuilder builder = new StringBuilder();
+        if (isAlpha(nextCharacter)) {
+            builder.append(source.charAt(current));
+            current++;
+            while (current < source.length() && isAlpha(source.charAt(current))) {
+                builder.append(source.charAt(current));
+                current++;
+            }
+            String word = builder.toString();
+
+            if (keywords.containsKey(word)) {
+                return new Token(keywords.get(word), word, line);
+            } else {
+                return new Token(TokenType.IDENTIFIER, word, line);
+            }
+        }
         return null;
     }
 
