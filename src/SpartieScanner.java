@@ -201,9 +201,20 @@ public class SpartieScanner {
         // another double quote
         // But, if you do not hit another double quote, you should report an error
         char nextCharacter = source.charAt(current);
+        StringBuilder builder = new StringBuilder();
+        if (nextCharacter == '"') {
+            builder.append(source.charAt(current));
+            current++;
 
+            while (source.charAt(current) != '"') {
+                builder.append(source.charAt(current));
+                current++;
+            }
+            builder.append(source.charAt(current));
+            current++;
+            return new Token(TokenType.STRING, builder.toString(), line);
+        }
         String string = null;
-
         return null;
     }
 
