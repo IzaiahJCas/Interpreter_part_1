@@ -104,7 +104,7 @@ public class SpartieScanner {
         // Comment special case
         if (nextCharacter == '/' && current + 1 < source.length() &&
                 examine('/')) {
-            // current++;
+            // current += 2;
             return null;
         }
 
@@ -185,7 +185,13 @@ public class SpartieScanner {
         // Hint: Examine the character for a comparison but check the next character (as
         // long as one is available)
         char nextCharacter = source.charAt(current);
-
+        if (nextCharacter == '/' && current + 1 < source.length() &&
+                examine('/')) {
+            while (!isAtEnd()) {
+                current += 2;
+            }
+            return new Token(TokenType.IGNORE, " ", line);
+        }
         return null;
     }
 
