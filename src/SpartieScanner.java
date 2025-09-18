@@ -151,7 +151,7 @@ public class SpartieScanner {
         char nextCharacter = source.charAt(current);
 
         if (nextCharacter == '=' && examine(nextCharacter) && current + 1 < source.length()) {
-            current = +2;
+            current += 2;
             return new Token(TokenType.EQUIVALENT, "==", line);
         }
 
@@ -162,9 +162,17 @@ public class SpartieScanner {
 
         switch (nextCharacter) {
             case '<':
+                if (current + 1 < source.length() && examine('=')) {
+                    current += 2;
+                    return new Token(TokenType.LESS_EQUAL, "<=", line);
+                }
                 current++;
                 return new Token(TokenType.LESS_THAN, "<", line);
             case '>':
+                if (examine('=')) {
+                    current += 2;
+                    return new Token(TokenType.GREATER_EQUAL, ">=", line);
+                }
                 current++;
                 return new Token(TokenType.GREATER_THAN, ">", line);
         }
