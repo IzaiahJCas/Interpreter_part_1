@@ -1,0 +1,17 @@
+{
+  "folders": [
+	{
+		"name": "Interpreter_part_1",
+		"path": ".."
+	},
+	{
+		"name": "__MACOSX",
+		"path": "../../../Spartie - Part 1 Template/__MACOSX"
+	}
+],
+  "settings": {
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "bin",
+    "java.project.referencedLibraries": ["lib/**/*.jar"]
+  }
+}
